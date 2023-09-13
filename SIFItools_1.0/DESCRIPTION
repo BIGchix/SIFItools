@@ -1,0 +1,14 @@
+Package: SIFItools
+Type: Package
+Title: Convert BioPax level3 into SIFI format
+Depends: R (>= 4.3.1)
+Imports: rBiopaxParser
+Version: 1.0
+Date: 2023-09-12
+Author: Xu Chi
+Maintainer: Xu Chi <chix@big.ac.cn>
+Description: SIFItools extract the substrates and enzymes of each reaction, forms an intermediate node, then create links from substrates/enzymes to the intermediate node, and from intermediate node to products. The result is a three-column dataframe in Simple Interaction Format with Intermediate nodes.
+License: GPL-3.0
+RoxygenNote: 7.2.3
+NeedsCompilation: no
+Packaged: 2023-09-13 02:58:11 UTC; chix
