@@ -29,6 +29,59 @@ The nodes in SIFI format may represent "intermediates" other than real molecules
 In each owl file, the relations between molecules are described using the internal ids, which are linked to the external ids of molecules or entities. For example, 
 <img width="1249" alt="image" src="https://github.com/BIGchix/SIFItools/assets/50654825/9d5dc162-3ae4-47a7-8862-0792f23dc5b2">
 This example shows the mapping of the internal id "SmallMolecule-5a7904c9d2ea1024caa5861c9c6e6eba" to the external id "CHEBI:16814". Note that only the "UnificationXref-..." id is the one we desired. Other ids are the ids that relate to this id.<br>
+
 Therefore, the conversion of an owl file into SIFI format is divided into two steps, first is the construction of the SIFI format table using internal ids, second is to convert the internal ids into external ids. Note, due to the varied naming conventions of different databases, the construction of SIFI table using internal ids is relatively simple, which has been automated by SIFItools. The conversion of internal ids into external ids on the other hand, requires much more manual curations.<br>
 
-
+To build the SIFI table using internal ids, first we load the libraries:
+```R
+library(rBiopaxParser)
+library(SIFItools)
+```
+Specify the location to the owl file, and the names of the output files. In this guide, we use [the owl file of KEGG](https://www.pathwaycommons.org/archives/PC2/v12/PathwayCommons12.kegg.BIOPAX.owl.gz) from pathwayCommons version 12.
+```R
+outpath<-"where you put the owl file/"
+input<-"PathwayCommons12.kegg.BIOPAX.owl"
+owl<-paste0(outpath,input)
+#output files
+(out.biopax<-paste0(outpath,dbname,"_biopax.RData"))
+(out.reactions.full<-paste0(outpath,dbname,"_reactions.full.RData"))
+(out.cplx2cpnt<-paste0(outpath,dbname,"_cplx2cpnt.RData"))
+(out.sif<-paste0(outpath,dbname,"_sif.RData"))
+```
+Before reading the owl file, replace the "_" by "-". We will use "_" to separate the subunits of protein complex. In R under macOS, do:
+```R
+system(paste0("sed -i -e 's/_/-/g' ",owl))
+```
+Then read the owl file:
+```R
+hbiopax<-read_owl(owl,out.biopax,input)
+```
+Note this will create an .RData file containing the hbiopax object. If the .RData file already exists, then this function will skip the loading process and directly load the .RData file.<br>
+Then we check the hbiopax object:
+```R
+head(hbiopax$dt)
+unique(hbiopax$dt$class)
+```
+Then build the table of reactions:
+```R
+reactions.full<-build_reactionsFull(out.reactions.full,hbiopax,verbose = TRUE)
+```
+The output is like this:
+```R
+[1] "Building reactions.full object..."
+[1] "Extracting reactions..."
+[1] "Extracting class::BiochemicalReaction..."
+[1] "Finished 1000 reactions, total 1782"
+[1] "No class::Degradation found."
+[1] "No class::Conversion found."
+[1] "No class::ComplexAssembly found."
+[1] "No class::Transport found."
+[1] "No class::TransportWithBiochemicalReaction found."
+[1] "No class::TemplateReaction found."
+[1] "Adding enzyme info into the dataframe..."
+[1] "Adding info for class::Catalysis..."
+[1] "Finished 1000 enzymes, total 1782"
+[1] "No class::Control found."
+[1] "No class::Modulation found."
+[1] "Saving reactions.full object to file: /.../curation/PathwayCommons/pcKEGG/pcKEGG_reactions.full.RData"
+```
