@@ -1,6 +1,6 @@
 # SIFItools
 A R package to convert BioPAX level3 owl files into Simple Interaction Format with Intermediates(SIFI)
-##Installation
+## Installation
 SIFItools can be installed directly from github:
 ```R
 library("devtools")
