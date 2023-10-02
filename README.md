@@ -23,4 +23,5 @@ node2 positive node1;node2
 node1;node2 positive node3
 ```
 This example represents a reaction where node1 and node2 generate node3. There is an "intermediate" node (node1;node2) to describe the relations between node1,2,and 3.<br>
+<img width="562" alt="image" src="https://github.com/BIGchix/SIFItools/assets/50654825/97a268a4-ab23-4e9b-b7af-5bc8c2df5835">
 The nodes in SIFI format may represent "intermediates" other than real molecules, which makes it slightly different from SIF. The notion of "intermediates" here is borrowed and simplified from chemical reactions, where substrate molecules get close enough to each other and forms "intermediates" before they are converted into products.
