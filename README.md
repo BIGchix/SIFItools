@@ -66,7 +66,7 @@ Then build the table of reactions:
 ```R
 reactions.full<-build_reactionsFull(out.reactions.full,hbiopax,verbose = TRUE)
 ```
-The output is like this:
+The info on screen is like this:
 ```R
 [1] "Building reactions.full object..."
 [1] "Extracting reactions..."
@@ -85,3 +85,42 @@ The output is like this:
 [1] "No class::Modulation found."
 [1] "Saving reactions.full object to file: /.../curation/PathwayCommons/pcKEGG/pcKEGG_reactions.full.RData"
 ```
+Then build the table of mapping the protein complexes to the subunits:
+```R
+cplx2cpnt<-build_cplx2cpnt(hbiopax,out.cplx2cpnt)
+```
+The info on screen is:
+```R
+[1] "Warning: no 'Complex' class in the biopax object."
+[1] "Created a void matching table for the downstream steps."
+```
+So there's no "Complex" class in this owl file. For other larger owl files, this table might be huge.<br>
+Next, build the SIFI table using the internal ids, which we refer to as "raw SIFI table":
+```R
+tmp.sif<-build_rawSIF(out.sif,reactions.full,cplx2cpnt)
+```
+The info on screen is:
+```R
+[1] "Building GIN in sif format, with local unreplaced ids..."
+[1] "Processed 100 reactions, total 1782"
+[1] "Processed 200 reactions, total 1782"
+[1] "Processed 300 reactions, total 1782"
+[1] "Processed 400 reactions, total 1782"
+[1] "Processed 500 reactions, total 1782"
+[1] "Processed 600 reactions, total 1782"
+[1] "Processed 700 reactions, total 1782"
+[1] "Processed 800 reactions, total 1782"
+[1] "Processed 900 reactions, total 1782"
+[1] "Processed 1000 reactions, total 1782"
+[1] "Processed 1100 reactions, total 1782"
+[1] "Processed 1200 reactions, total 1782"
+[1] "Processed 1300 reactions, total 1782"
+[1] "Processed 1400 reactions, total 1782"
+[1] "Processed 1500 reactions, total 1782"
+[1] "Processed 1600 reactions, total 1782"
+[1] "Processed 1700 reactions, total 1782"
+[1] "Saving sif dataframe into file: /.../curation/PathwayCommons/pcKEGG/pcKEGG_sif.RData"
+```
+Now, the raw SIFI table has been built. It's stored in the object "tmp.sif" and in a local file "pcKEGG_sif.RData".
+### Create matching table to map internal ids to external ids
+Before we replace the internal ids with external ids, we need to build a matching table for this specific owl file to speed up the process.
