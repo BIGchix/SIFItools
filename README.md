@@ -15,13 +15,20 @@ if (!require("BiocManager", quietly = TRUE))
 BiocManager::install("rBiopaxParser")
 ```
 ## A brief guide for conversion of Biopax level3 owl files into SIFI format
-### SIFI format
+### Introduction to SIFI format
 SIFI is a variant format of Simple Interaction Format(SIF). It consists of three columns, where the first column is the starting node of an edge, the second column is the type of the edge, and the third column is the ending node of the edge. For example:
 ```
-node1 positive node1;node2
-node2 positive node1;node2
-node1;node2 positive node3
+Node1 positive Node1;Node2
+Node2 positive Node1;Node2
+Node1;Node2 positive Node3
 ```
-This example represents a reaction where node1 and node2 generate node3. There is an "intermediate" node (node1;node2) to describe the relations between node1,2,and 3.<br>
+This example represents a reaction where Node1 and Node2 generate Node3. There is an "intermediate" node (Node1;Node2) to describe the relations between Node1,2,and 3.<br>
 <img width="562" alt="image" src="https://github.com/BIGchix/SIFItools/assets/50654825/97a268a4-ab23-4e9b-b7af-5bc8c2df5835">
 The nodes in SIFI format may represent "intermediates" other than real molecules, which makes it slightly different from SIF. The notion of "intermediates" here is borrowed and simplified from chemical reactions, where substrate molecules get close enough to each other and forms "intermediates" before they are converted into products.
+### Build SIFI format table using internal ids
+In each owl file, the relations between molecules are described using the internal ids, which are linked to the external ids of molecules or entities. For example, 
+```
+```
+Therefore, the conversion of an owl file into SIFI format is divided into two steps, first is the construction of the SIFI format table using internal ids, second is to convert the internal ids into external ids. Note, due to the varied naming conventions of different databases, the construction of SIFI table using internal ids is relatively simple, which has been automated by SIFItools. The conversion of internal ids into external ids on the other hand, requires much more manual curations.<br>
+
+
