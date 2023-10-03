@@ -195,4 +195,35 @@ The result is:
 10 molecular interactions ontology:MI:         MI
 ```
 Now, the matching table for KEGG has been built, we can proceed to the next step.
+### Replace internal ids with external ids
+This step is the time limiting step of the whole process. To speed up the process, we can split the process into multiple jobs and run them in parallel. 
+···R
+(total=dim(tmp.sif)[1]) #The total number of lines
+mystart=1 #The starting line number. We recommend to split the table every 2000 lines
 
+if(mystart > total){
+  print("Starting number must be smaller than the total number of lines of the edgelist.")
+  q(save = "no")
+}
+
+if(mystart+2000-1 > total){
+  myend = total
+}else{
+  myend = mystart + 2000 - 1
+}
+
+print("Start replacing local id with commonly used ids.")
+print(paste0("Starting from line ",mystart,", will end at line ",myend))
+
+tmp.sif.tmp<-replace_id_with_annotation(hbiopax,tmp.sif,mystart,myend,matchTable.kegg,verbose = TRUE)
+tmp.sif.tmp<-tmp.sif.tmp[mystart:myend,] #Subsetting the df. The tmp.sif.tmp is a full size dataframe containing all of the edges, but only the internal ids of specified lines have been replaced by external ids.
+
+write.table(tmp.sif.tmp,file = paste0(outpath,dbname,".sif.replaced.",mystart,".",myend,".tsv"),sep="\t",
+            row.names = F, col.names = F, quote = F) #Save the result
+```
+After all of the jobs are done, concatenate the result files and remove the edges with no ending nodes:
+```R
+system(paste0("'cat ",workdir,dbname,".sif.replaced.* > ",workdir,dbname,".sif.replaced.tsv'"))
+system(paste0("'grep -v NoRight ",workdir,dbname,"sif.replaced.tsv > ",workdir,"final.hs.sif.replaced.tsv'"))
+```
+Now the convertion of a single database's owl file into SIFI format has done.
