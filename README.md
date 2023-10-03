@@ -129,6 +129,7 @@ Before we replace the internal ids with external ids, we need to build a matchin
 ```R
 load(matchTable.all.RData)
 head(matchTable.all)
+                     wikipedia. Wikipedia
 1                      uniprot:   UniProt
 2        uniprot knowledgebase:   UniProt
 3              uniprot isoform:   UniProt
