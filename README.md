@@ -28,6 +28,7 @@ The nodes in SIFI format may represent "intermediates" other than real molecules
 ### Build SIFI format table using internal ids
 In each owl file, the relations between molecules are described using the internal ids, which are linked to the external ids of molecules or entities. For example, 
 <img width="1249" alt="image" src="https://github.com/BIGchix/SIFItools/assets/50654825/9d5dc162-3ae4-47a7-8862-0792f23dc5b2">
+<br>
 This example shows the mapping of the internal id "SmallMolecule-5a7904c9d2ea1024caa5861c9c6e6eba" to the external id "CHEBI:16814". Note that only the "UnificationXref-..." id is the one we desired. Other ids are the ids that relate to this id.<br>
 
 Therefore, the conversion of an owl file into SIFI format is divided into two steps, first is the construction of the SIFI format table using internal ids, second is to convert the internal ids into external ids. Note, due to the varied naming conventions of different databases, the construction of SIFI table using internal ids is relatively simple, which has been automated by SIFItools. The conversion of internal ids into external ids on the other hand, requires much more manual curations.<br>
@@ -122,5 +123,47 @@ The info on screen is:
 [1] "Saving sif dataframe into file: /.../curation/PathwayCommons/pcKEGG/pcKEGG_sif.RData"
 ```
 Now, the raw SIFI table has been built. It's stored in the object "tmp.sif" and in a local file "pcKEGG_sif.RData".
-### Create matching table to map internal ids to external ids
-Before we replace the internal ids with external ids, we need to build a matching table for this specific owl file to speed up the process.
+### Create matching table to format external ids.
+Before we replace the internal ids with external ids, we need to build a matching table for this specific owl file to format the external ids. As shown in the example of the internal id "SmallMolecule-5a7904c9d2ea1024caa5861c9c6e6eba", the external id is stored as "chebi:CHEBI:16814". In fact, different databases use different names for the same annotation database, for example, in the INOH database, HGNC symbols are described as "hgnc symbol", while in KEGG, it is "hgnc". Since the function getXrefAnnotations from rBiopaxParser will concatenate the database' name with the ids, the final external ids fetched by getXrefAnnotations will be in "hgnc symbol:XXX" for INOH and "hgnc:XXX" for KEGG. To parse these different formats of the external ids, manual curations are needed. Here we have constructed an matching table for replacing the strings into unified formats. Note, we removed the ":" in the external ids during replacement. The matching table for nine databases parsed by pathwayCommons can be found here, in ".RData" format. The table is like this:
+```R
+load(matchTable.all.RData)
+head(matchTable.all)
+1                      uniprot:   UniProt
+2        uniprot knowledgebase:   UniProt
+3              uniprot isoform:   UniProt
+4               umbbd-compounds     UMBBD
+5 therapeutic targets database:          
+6         sequence ontology:SO:        SO
+```
+During the conversion of the internal ids into external ids, the external ids will be simultaneously formatted.<br>
+ <br>
+On the other hand, if a new matching table is needed, the following codes might be helpful:
+```R
+#use KEGG as an example to build a new matching table
+(dbName<-unique(hbiopax$dt$property_value[hbiopax$dt$property == "db"])) #show all of the databases presented in this owl file
+indx.db<-c()
+df.example<-data.frame(examples=rep("example",6)) #initialize the dataframe
+for(i in 1:length(dbName)){
+  n.uni<-dim(hbiopax$dt[hbiopax$dt$property == "db" & hbiopax$dt$property_value == dbName[i] &hbiopax$dt$class == "UnificationXref",])[1]
+  if(n.uni > 0){ #Only the databases with >0 UnificationXRef are considered
+    indx.db<-c(indx.db,i)
+    idvec<-head(unique(hbiopax$dt$id[hbiopax$dt$property == "db" & hbiopax$dt$property_value == dbName[i]])) #The example ids
+    df.example<-cbind(df.example,dbname=hbiopax$dt[hbiopax$dt$id %in% idvec & hbiopax$dt$property == "id",6]) #Store the ids in the dataframe
+  }
+}
+df.example<-df.example[,-1]
+colnames(df.example)<-dbName[indx.db]
+df.example
+```
+We will get:
+```R
+> df.example
+  kegg reaction kegg orthology kegg pathway uniprot knowledgebase        chebi kegg compound kegg glycan        cas      mi molecular interactions ontology taxonomy
+1        R01615         K03430      rn00230                Q9UHN1  CHEBI:30933        C02325      G10621 14215-68-0 MI:0356                         MI:0360     9606
+2        R06539         K13788      rn00710                Q9H3R1  CHEBI:18036        C00672      G00275  3475-65-8 MI:0361                         MI:0829     9606
+3        R01818         K00818      rn00906                Q3MUY2  CHEBI:17361        C02700      G10336 10257-28-0 MI:0356                         MI:0360     9606
+4        R02557         K02706      rn00362                O24475 CHEBI:506227        C00191      G10609  2280-44-6 MI:0361                         MI:0829     9606
+5        R08949         K02434      rn00770                Q16836  CHEBI:17122        C05809      G00289 10139-18-1 MI:0356                         MI:0360     9606
+6        R01000         K04092      rn00040                O00408   CHEBI:7274        C05422      G10608  1022-31-7 MI:0361                         MI:0829     9606
+```
+Note that the function getXrefAnnotations will concatenate the database' name with the ids, for example "CHEBI:30933" will become "chebi:CHEBI:30933", so we have to replace the string "chebi:CHEBI:" with "CHEBI". Here we remove the ":" in all of the ids to avoid unexpected behavior of the functions.
