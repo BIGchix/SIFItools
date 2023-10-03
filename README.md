@@ -28,7 +28,7 @@ The nodes in SIFI format may represent "intermediates" other than real molecules
 ### Build SIFI format table using internal ids
 In each owl file, the relations between molecules are described using the internal ids, which are linked to the external ids of molecules or entities. For example, 
 <img width="1249" alt="image" src="https://github.com/BIGchix/SIFItools/assets/50654825/9d5dc162-3ae4-47a7-8862-0792f23dc5b2">
-<br>
+<br><br>
 This example shows the mapping of the internal id "SmallMolecule-5a7904c9d2ea1024caa5861c9c6e6eba" to the external id "CHEBI:16814". Note that only the "UnificationXref-..." id is the one we desired. Other ids are the ids that relate to this id.<br>
 
 Therefore, the conversion of an owl file into SIFI format is divided into two steps, first is the construction of the SIFI format table using internal ids, second is to convert the internal ids into external ids. Note, due to the varied naming conventions of different databases, the construction of SIFI table using internal ids is relatively simple, which has been automated by SIFItools. The conversion of internal ids into external ids on the other hand, requires much more manual curations.<br>
@@ -49,7 +49,7 @@ owl<-paste0(outpath,input)
 (out.cplx2cpnt<-paste0(outpath,dbname,"_cplx2cpnt.RData"))
 (out.sif<-paste0(outpath,dbname,"_sif.RData"))
 ```
-Before reading the owl file, replace the "_" by "-". We will use "_" to separate the subunits of protein complex. In R under macOS, do:
+Before reading the owl file, replace the "\_" by "-". We will use "\_" to separate the subunits of protein complex. In R under macOS, do:
 ```R
 system(paste0("sed -i -e 's/_/-/g' ",owl))
 ```
@@ -57,7 +57,7 @@ Then read the owl file:
 ```R
 hbiopax<-read_owl(owl,out.biopax,input)
 ```
-Note this will create an .RData file containing the hbiopax object. If the .RData file already exists, then this function will skip the loading process and directly load the .RData file.<br>
+Note this will create an .RData file containing the hbiopax object. If the .RData file already exists, then this function will skip the reading process and directly load the .RData file.<br>
 Then we check the hbiopax object:
 ```R
 head(hbiopax$dt)
@@ -67,7 +67,7 @@ Then build the table of reactions:
 ```R
 reactions.full<-build_reactionsFull(out.reactions.full,hbiopax,verbose = TRUE)
 ```
-The info on screen is like this:
+The info on screen looks like this:
 ```R
 [1] "Building reactions.full object..."
 [1] "Extracting reactions..."
@@ -86,7 +86,7 @@ The info on screen is like this:
 [1] "No class::Modulation found."
 [1] "Saving reactions.full object to file: /.../curation/PathwayCommons/pcKEGG/pcKEGG_reactions.full.RData"
 ```
-Then build the table of mapping the protein complexes to the subunits:
+Then build the mapping table of protein complexes to their subunits:
 ```R
 cplx2cpnt<-build_cplx2cpnt(hbiopax,out.cplx2cpnt)
 ```
@@ -197,7 +197,7 @@ The result is:
 Now, the matching table for KEGG has been built, we can proceed to the next step.
 ### Replace internal ids with external ids
 This step is the time limiting step of the whole process. To speed up the process, we can split the process into multiple jobs and run them in parallel. 
-···R
+```R
 (total=dim(tmp.sif)[1]) #The total number of lines
 mystart=1 #The starting line number. We recommend to split the table every 2000 lines
 
