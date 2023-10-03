@@ -166,4 +166,33 @@ We will get:
 5        R08949         K02434      rn00770                Q16836  CHEBI:17122        C05809      G00289 10139-18-1 MI:0356                         MI:0360     9606
 6        R01000         K04092      rn00040                O00408   CHEBI:7274        C05422      G10608  1022-31-7 MI:0361                         MI:0829     9606
 ```
-Note that the function getXrefAnnotations will concatenate the database' name with the ids, for example "CHEBI:30933" will become "chebi:CHEBI:30933", so we have to replace the string "chebi:CHEBI:" with "CHEBI". Here we remove the ":" in all of the ids to avoid unexpected behavior of the functions.
+Note that the function getXrefAnnotations will concatenate the database' name with the ids, for example "CHEBI:30933" will become "chebi:CHEBI:30933", so we have to replace the string "chebi:CHEBI:" with "CHEBI". Here we remove the ":" in all of the ids to avoid unexpected behavior of the functions. So the matching table can be created like this:
+```R
+matchTable.kegg<-data.frame(toBeReplaced="kegg reaction:",replacedBy="KEGG")
+matchTable.kegg<-rbind(matchTable.kegg,data.frame(toBeReplaced="kegg orthology:",replacedBy="KEGG"))
+matchTable.kegg<-rbind(matchTable.kegg,data.frame(toBeReplaced="kegg pathway:",replacedBy="KEGG"))
+matchTable.kegg<-rbind(matchTable.kegg,data.frame(toBeReplaced="uniprot knowledgebase",replacedBy="UniProt"))
+matchTable.kegg<-rbind(matchTable.kegg,data.frame(toBeReplaced="chebi:CHEBI:",replacedBy="CHEBI"))
+matchTable.kegg<-rbind(matchTable.kegg,data.frame(toBeReplaced="kegg compound:",replacedBy="KEGG"))
+matchTable.kegg<-rbind(matchTable.kegg,data.frame(toBeReplaced="kegg glycan:",replacedBy="KEGG"))
+matchTable.kegg<-rbind(matchTable.kegg,data.frame(toBeReplaced="cas:",replacedBy="CAS"))
+matchTable.kegg<-rbind(matchTable.kegg,data.frame(toBeReplaced="mi:MI:",replacedBy="MI"))
+matchTable.kegg<-rbind(matchTable.kegg,data.frame(toBeReplaced="molecular interactions ontology:MI:",replacedBy="MI"))
+```
+The result is:
+```R
+> matchTable.kegg
+                          toBeReplaced replacedBy
+1                       kegg reaction:       KEGG
+2                      kegg orthology:       KEGG
+3                        kegg pathway:       KEGG
+4                uniprot knowledgebase    UniProt
+5                         chebi:CHEBI:      CHEBI
+6                       kegg compound:       KEGG
+7                         kegg glycan:       KEGG
+8                                 cas:        CAS
+9                               mi:MI:         MI
+10 molecular interactions ontology:MI:         MI
+```
+Now, the matching table for KEGG has been built, we can proceed to the next step.
+
