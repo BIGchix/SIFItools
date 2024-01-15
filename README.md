@@ -42,6 +42,7 @@ library(SIFItools)
 Specify the location to the owl file, and the names of the output files. In this guide, we use [the owl file of KEGG](https://www.pathwaycommons.org/archives/PC2/v12/PathwayCommons12.kegg.BIOPAX.owl.gz) from pathwayCommons version 12.
 ```R
 outpath<-"where you put the owl file/"
+dbname<-"KEGG"
 input<-"PathwayCommons12.kegg.BIOPAX.owl"
 owl<-paste0(outpath,input)
 #output files
